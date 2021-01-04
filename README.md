@@ -1,3 +1,3 @@
 # AVL-Tree
--mvn clean package/
+-mvn clean package\
 -java -jar target\bim213.jar
