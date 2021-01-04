@@ -42,8 +42,13 @@ public class AVL {
      * the inserted node
      *******************************************************/
     public AVLNode Insert(int key) {
-        // Fill this in
-        return null;
+        //AVLNode temp = new AVLNode(key);
+        if (root == null) {
+            root = new AVLNode(key);
+            return root;
+        } else
+
+            return help(root, key);
     } //end-Insert
 
     /*******************************************************
@@ -96,4 +101,81 @@ public class AVL {
     public void Print() {
         // Fill this in
     } //end-Print
+
+    private int height(AVLNode node) {
+        if (node == null)
+            return 0;
+        else {
+
+            int lDepth = height(node.left);
+            int rDepth = height(node.right);
+
+            if (lDepth > rDepth)
+                return (lDepth + 1);
+            else
+                return (rDepth + 1);
+        }
+    }
+
+    public int getBalance(AVLNode node) {
+        if (node == null)
+            return 0;
+        return height(node.left) - height(node.right);
+    }
+
+    private AVLNode leftRotate(AVLNode x) {
+        AVLNode y = x.right;
+        AVLNode T2 = y.left;
+
+        y.left = x;
+        x.right = T2;
+
+        return y;
+    }
+
+    private AVLNode rightRotate(AVLNode y) {
+        AVLNode x = y.left;
+        AVLNode T2 = x.right;
+
+        x.right = y;
+        y.left = T2;
+
+
+        return x;
+    }
+
+    private AVLNode help(AVLNode node, int key) {
+
+        if (node == null) {
+            return (new AVLNode(key));
+        }
+
+
+        if (key < node.key)
+            node.left = help(node.left, key);
+        else if (key > node.key)
+            node.right = help(node.right, key);
+        else
+            return node;
+
+        int balance = getBalance(node);
+
+        if (balance > 1 && key < node.left.key)
+            return rightRotate(node);
+
+        if (balance < -1 && key > node.right.key)
+            return leftRotate(node);
+
+        if (balance > 1 && key > node.left.key) {
+            node.left = leftRotate(node.left);
+            return rightRotate(node);
+        }
+
+        if (balance < -1 && key < node.right.key) {
+            node.right = rightRotate(node.right);
+            return leftRotate(node);
+        }
+
+        return node;
+    }
 }
