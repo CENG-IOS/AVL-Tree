@@ -90,8 +90,7 @@ public class AVL {
      * the depth of the deepest leaf node. Root is at depth 0
      *******************************************************/
     public int Depth() {
-        // Fill this in
-        return -1;
+        return height(root) - 1;
     } //end-Depth
 
     /*******************************************************

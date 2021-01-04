@@ -16,6 +16,7 @@ public class Main {
         System.out.println("root.right.right: "+tree.Root().right.right.key);
 
         System.out.println("rootun dengesi: "+tree.getBalance(tree.Root()));
+        System.out.println("depth: "+tree.Depth());
 
 
 
