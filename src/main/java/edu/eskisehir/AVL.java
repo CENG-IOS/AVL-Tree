@@ -103,8 +103,16 @@ public class AVL {
      * pairs in sorted order
      *******************************************************/
     public void Print() {
-        // Fill this in
+        inOrder(root);
     } //end-Print
+
+    private void inOrder(AVLNode node) {
+        if (node != null) {
+            inOrder(node.left);
+            System.out.print(node.key + " ");
+            inOrder(node.right);
+        }
+    }
 
     private int height(AVLNode node) {
         if (node == null)

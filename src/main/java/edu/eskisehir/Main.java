@@ -18,7 +18,7 @@ public class Main {
         System.out.println("depth: " + tree.Depth());
         System.out.println("max: " + tree.Max().key);
         System.out.println("min: "+tree.Min().key);
-
+        tree.Print();
 
     }
 }
