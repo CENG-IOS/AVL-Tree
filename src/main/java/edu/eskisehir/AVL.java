@@ -42,7 +42,6 @@ public class AVL {
      * the inserted node
      *******************************************************/
     public AVLNode Insert(int key) {
-        //AVLNode temp = new AVLNode(key);
         if (root == null) {
             root = new AVLNode(key);
             return root;
@@ -73,16 +72,22 @@ public class AVL {
      * Returns a pointer to the node that contains the minimum key
      *******************************************************/
     public AVLNode Min() {
-        // Fill this in
-        return null;
+        AVLNode min = root;
+        while (min.left!=null) {
+            min = min.left;
+        }
+        return min;
     } //end-Min
 
     /*******************************************************
      * Returns a pointer to the node that contains the maximum key
      *******************************************************/
     public AVLNode Max() {
-        // Fill this in
-        return null;
+        AVLNode max = root;
+        while (max.right!=null) {
+            max = max.right;
+        }
+        return max;
     } //end-Max
 
     /*******************************************************
@@ -148,7 +153,6 @@ public class AVL {
         if (node == null) {
             return (new AVLNode(key));
         }
-
 
         if (key < node.key)
             node.left = help(node.left, key);
