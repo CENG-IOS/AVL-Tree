@@ -14,6 +14,7 @@ package edu.eskisehir;
 public class AVL {
     private AVLNode root;      /* Pointer to the root of the tree */
     private int noOfNodes;     /* No of nodes in the tree */
+    private AVLNode deleted;
 
     /*******************************************************
      * Constructor: Initializes the AVL
@@ -52,11 +53,11 @@ public class AVL {
      *******************************************************/
     public int Delete(int key) {
         AVLNode copy = root;
-        AVLNode temp = helpDeletion(copy, key);
-        if (temp == null)
+        helpDeletion(copy, key);
+        if (deleted == null) {
             return -1;
-        else {
-            noOfNodes--;
+        } else {
+            deleted = null;
             return 0;
         }
     } //end-Delete
@@ -143,9 +144,7 @@ public class AVL {
 
     private AVLNode helpFind(AVLNode copy, int key) {
         if (copy == null) {
-
             return null;
-
         } else if (key < copy.key) {
 
             return helpFind(copy.left, key);
@@ -155,66 +154,74 @@ public class AVL {
             return helpFind(copy.right, key);
 
         } else {
-
             return copy;
         }
     }
 
-    private AVLNode helpDeletion(AVLNode root, int key) {
-        if (root == null)
-            return root;
+    private AVLNode helpDeletion(AVLNode node, int key) {
 
-        if (key < root.key)
-            root.left = helpDeletion(root.left, key);
+        if (node == null)
+            return node;
 
-        else if (key > root.key)
-            root.right = helpDeletion(root.right, key);
+        if (key < node.key)
+            node.left = helpDeletion(node.left, key);
+
+        else if (key > node.key)
+            node.right = helpDeletion(node.right, key);
 
         else {
+            if (node.count > 1) {
+                node.count--;
+                return null;
+            }
 
-            if ((root.left == null) || (root.right == null)) {
-                AVLNode temp = null;
-                if (temp == root.left)
-                    temp = root.right;
-                else
-                    temp = root.left;
+            if ((node.left == null) || (node.right == null)) {
+                AVLNode temp = node.left != null ? node.left : node.right;
 
                 if (temp == null) {
-                    temp = root;
-                    root = null;
-                } else
-                    root = temp;
+                    temp = node;
+                    deleted = temp;
+                    node = null;
+                } else{
+                    deleted = temp;
+                    node = temp;
+                }
 
             } else {
-                AVLNode temp = minValueNode(root.right);
-                root.key = temp.key;
-                root.right = helpDeletion(root.right, temp.key);
+                AVLNode temp = minValueNode(node.right);
+
+                node.key = temp.key;
+                node.count = temp.count;
+                temp.count = 1;
+                node.right = helpDeletion(node.right, temp.key);
             }
+
+
         }
 
+        if (node == null)
+            return node;
 
-        if (root == null)
-            return root;
+        int balance = getBalance(node);
 
-        int balance = getBalance(root);
+        if (balance > 1 && getBalance(node.left) >= 0)
+            return rotateRight(node);
 
-        if (balance > 1 && getBalance(root.left) >= 0)
-            return rotateRight(root);
-
-        if (balance > 1 && getBalance(root.left) < 0) {
-            root.left = rotateLeft(root.left);
-            return rotateRight(root);
+        if (balance > 1 && getBalance(node.left) < 0) {
+            node.left = rotateLeft(node.left);
+            return rotateRight(node);
         }
 
-        if (balance < -1 && getBalance(root.right) <= 0)
-            return rotateLeft(root);
+        if (balance < -1 && getBalance(node.right) <= 0)
+            return rotateLeft(node);
 
-        if (balance < -1 && getBalance(root.right) > 0) {
-            root.right = rotateRight(root.right);
-            return rotateLeft(root);
+
+        if (balance < -1 && getBalance(node.right) > 0) {
+            node.right = rotateRight(node.right);
+            return rotateLeft(node);
         }
 
-        return root;
+        return node;
     }
 
     private AVLNode minValueNode(AVLNode node) {
@@ -230,8 +237,12 @@ public class AVL {
     private AVLNode helpInsert(AVLNode node, int key) {
 
         if (node == null) {
-            noOfNodes++;
+
             node = new AVLNode(key);
+            AVLNode temp = Find(key);
+            if (temp != null && temp.key == key) {
+                node.count++;
+            } else noOfNodes++;
         } else if (key < node.key) {
             node.left = helpInsert(node.left, key);
             if (height(node.left) - height(node.right) == 2)
@@ -240,20 +251,17 @@ public class AVL {
                 else
                     node = doubleRotateLeft(node);
         } else {
-            AVLNode temp = Find(key);
-            if (temp != null){
+            if (node.key == key) {
                 node.count++;
-
             }
-
-
             node.right = helpInsert(node.right, key);
             if (height(node.right) - height(node.left) == 2)
-                if (key > node.right.key)
+                if (key >= node.right.key)
                     node = rotateRight(node);
                 else
                     node = doubleRotateRight(node);
         }
+
 
         return node;
     }

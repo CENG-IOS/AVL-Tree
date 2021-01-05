@@ -19,11 +19,16 @@ public class Main {
         avl.Insert(4);
         avl.Insert(20);
         avl.Insert(15);
+        avl.Insert(12);
+        avl.Insert(11);
+        avl.Insert(13);
+        avl.Insert(17);
+        avl.Insert(16);
+        avl.Insert(18);
         avl.Insert(30);
-        avl.Insert(40);
+        System.out.println(avl.Delete(5));
         avl.Print();
-        System.out.println("5in sayısı: "+avl.Find(5).count);
-        System.out.println("10in sayısı: "+avl.Find(10).count);
+
 
         /*System.out.println("root: " + tree.Root().key);
         System.out.println("root.left: " + tree.Root().left.key);
