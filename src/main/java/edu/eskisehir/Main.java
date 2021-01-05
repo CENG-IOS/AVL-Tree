@@ -19,6 +19,8 @@ public class Main {
         System.out.println("max: " + tree.Max().key);
         System.out.println("min: "+tree.Min().key);
         tree.Print();
-
+        System.out.println(tree.Find(55));
+        System.out.println(5+" silindi. " + tree.Delete(5));
+        tree.Print();
     }
 }

@@ -47,7 +47,7 @@ public class AVL {
             return root;
         } else
 
-            return help(root, key);
+            return helpInsert(root, key);
     } //end-Insert
 
     /*******************************************************
@@ -55,8 +55,11 @@ public class AVL {
      * 0 if deletion succeeds, -1 if it fails
      *******************************************************/
     public int Delete(int key) {
-        // Fill this in
-        return 0;
+        AVLNode copy = root;
+        AVLNode temp = helpDeletion(copy, key);
+        if (temp == null)
+            return -1;
+        else return 0;
     } //end-Delete
 
     /*******************************************************
@@ -64,8 +67,8 @@ public class AVL {
      * node that contains the key (if found) or NULL if unsuccessful
      *******************************************************/
     public AVLNode Find(int key) {
-        // Fill this in
-        return null;
+        AVLNode copy = root;
+        return helpFind(copy, key);
     } //end-Find
 
     /*******************************************************
@@ -73,7 +76,7 @@ public class AVL {
      *******************************************************/
     public AVLNode Min() {
         AVLNode min = root;
-        while (min.left!=null) {
+        while (min.left != null) {
             min = min.left;
         }
         return min;
@@ -84,7 +87,7 @@ public class AVL {
      *******************************************************/
     public AVLNode Max() {
         AVLNode max = root;
-        while (max.right!=null) {
+        while (max.right != null) {
             max = max.right;
         }
         return max;
@@ -104,6 +107,7 @@ public class AVL {
      *******************************************************/
     public void Print() {
         inOrder(root);
+        System.out.println();
     } //end-Print
 
     private void inOrder(AVLNode node) {
@@ -156,16 +160,16 @@ public class AVL {
         return x;
     }
 
-    private AVLNode help(AVLNode node, int key) {
+    private AVLNode helpInsert(AVLNode node, int key) {
 
         if (node == null) {
             return (new AVLNode(key));
         }
 
         if (key < node.key)
-            node.left = help(node.left, key);
+            node.left = helpInsert(node.left, key);
         else if (key > node.key)
-            node.right = help(node.right, key);
+            node.right = helpInsert(node.right, key);
         else
             return node;
 
@@ -188,5 +192,116 @@ public class AVL {
         }
 
         return node;
+    }
+
+    private AVLNode helpFind(AVLNode copy, int key) {
+        if (copy == null) {
+
+            return null;
+
+        } else if (key < copy.key) {
+
+            return helpFind(copy.left, key);
+
+        } else if (key > copy.key) {
+
+            return helpFind(copy.right, key);
+
+        } else {
+
+            return copy;
+        }
+    }
+
+    private AVLNode helpDeletion(AVLNode root, int key) {
+        // STEP 1: PERFORM STANDARD BST DELETE
+        if (root == null)
+            return root;
+
+        // If the key to be deleted is smaller than
+        // the root's key, then it lies in left subtree
+        if (key < root.key)
+            root.left = helpDeletion(root.left, key);
+
+            // If the key to be deleted is greater than the
+            // root's key, then it lies in right subtree
+        else if (key > root.key)
+            root.right = helpDeletion(root.right, key);
+
+            // if key is same as root's key, then this is the node
+            // to be deleted
+        else {
+
+            // node with only one child or no child
+            if ((root.left == null) || (root.right == null)) {
+                AVLNode temp = null;
+                if (temp == root.left)
+                    temp = root.right;
+                else
+                    temp = root.left;
+
+                // No child case
+                if (temp == null) {
+                    temp = root;
+                    root = null;
+                } else // One child case
+                    root = temp; // Copy the contents of
+                // the non-empty child
+            } else {
+
+                // node with two children: Get the inorder
+                // successor (smallest in the right subtree)
+                AVLNode temp = minValueNode(root.right);
+
+                // Copy the inorder successor's data to this node
+                root.key = temp.key;
+
+                // Delete the inorder successor
+                root.right = helpDeletion(root.right, temp.key);
+            }
+        }
+
+        // If the tree had only one node then return
+        if (root == null)
+            return root;
+
+        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to check whether
+        // this node became unbalanced)
+        int balance = getBalance(root);
+
+        // If this node becomes unbalanced, then there are 4 cases
+        // Left Left Case
+        if (balance > 1 && getBalance(root.left) >= 0)
+            return rightRotate(root);
+
+        // Left Right Case
+        if (balance > 1 && getBalance(root.left) < 0) {
+            root.left = leftRotate(root.left);
+            return rightRotate(root);
+        }
+
+        // Right Right Case
+        if (balance < -1 && getBalance(root.right) <= 0)
+            return leftRotate(root);
+
+        // Right Left Case
+        if (balance < -1 && getBalance(root.right) > 0) {
+            root.right = rightRotate(root.right);
+            return leftRotate(root);
+        }
+
+        return root;
+
+
+    }
+
+    private AVLNode minValueNode(AVLNode node) {
+        AVLNode current = node;
+
+        /* loop down to find the leftmost leaf */
+        while (current.left != null)
+            current = current.left;
+
+        return current;
     }
 }
