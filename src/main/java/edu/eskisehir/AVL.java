@@ -43,8 +43,7 @@ public class AVL {
      * the inserted node
      *******************************************************/
     public AVLNode Insert(int key) {
-        root = helpInsert(root, key);
-        return null;
+        return helpInsert(root, key);
     } //end-Insert
 
     /*******************************************************
@@ -67,8 +66,18 @@ public class AVL {
      * node that contains the key (if found) or NULL if unsuccessful
      *******************************************************/
     public AVLNode Find(int key) {
+        /*AVLNode copy = root;
+        return helpFind(copy, key);*/
         AVLNode copy = root;
-        return helpFind(copy, key);
+        while (copy != null) {
+            if (key == copy.key)
+                return copy;
+            else if (key < copy.key)
+                copy = copy.left;
+            else
+                copy = copy.right;
+        }
+        return null;
     } //end-Find
 
     /*******************************************************
@@ -125,7 +134,6 @@ public class AVL {
         if (node == null)
             return 0;
         else {
-
             int lDepth = height(node.left);
             int rDepth = height(node.right);
 
@@ -142,102 +150,65 @@ public class AVL {
         return height(node.left) - height(node.right);
     }
 
-    private AVLNode helpFind(AVLNode copy, int key) {
-        if (copy == null) {
-            return null;
-        } else if (key < copy.key) {
-
-            return helpFind(copy.left, key);
-
-        } else if (key > copy.key) {
-
-            return helpFind(copy.right, key);
-
-        } else {
-            return copy;
-        }
-    }
-
     private AVLNode helpDeletion(AVLNode node, int key) {
-
         if (node == null)
             return node;
-
         if (key < node.key)
             node.left = helpDeletion(node.left, key);
-
         else if (key > node.key)
             node.right = helpDeletion(node.right, key);
-
         else {
             if (node.count > 1) {
                 node.count--;
-                return null;
+                noOfNodes++;
             }
-
             if ((node.left == null) || (node.right == null)) {
                 AVLNode temp = node.left != null ? node.left : node.right;
-
                 if (temp == null) {
+                    noOfNodes--;
                     temp = node;
                     deleted = temp;
                     node = null;
-                } else{
-                    deleted = temp;
+                } else {
+                    noOfNodes--;
+                    deleted = node;
                     node = temp;
                 }
-
             } else {
-                AVLNode temp = minValueNode(node.right);
-
+                AVLNode temp = predecessor(node.left);
                 node.key = temp.key;
                 node.count = temp.count;
                 temp.count = 1;
-                node.right = helpDeletion(node.right, temp.key);
+                helpDeletion(node.left, temp.key);
             }
-
-
         }
 
         if (node == null)
             return node;
-
         int balance = getBalance(node);
-
         if (balance > 1 && getBalance(node.left) >= 0)
             return rotateRight(node);
-
         if (balance > 1 && getBalance(node.left) < 0) {
-            node.left = rotateLeft(node.left);
-            return rotateRight(node);
+            return doubleRotateRight(node);
         }
-
         if (balance < -1 && getBalance(node.right) <= 0)
             return rotateLeft(node);
-
-
         if (balance < -1 && getBalance(node.right) > 0) {
-            node.right = rotateRight(node.right);
-            return rotateLeft(node);
+            return doubleRotateLeft(node);
         }
-
         return node;
     }
 
-    private AVLNode minValueNode(AVLNode node) {
+    private AVLNode predecessor(AVLNode node) {
         AVLNode current = node;
-
-        /* loop down to find the leftmost leaf */
-        while (current.left != null)
-            current = current.left;
-
+        while (current.right != null)
+            current = current.right;
         return current;
     }
 
     private AVLNode helpInsert(AVLNode node, int key) {
 
         if (node == null) {
-
             node = new AVLNode(key);
             AVLNode temp = Find(key);
             if (temp != null && temp.key == key) {
@@ -247,7 +218,7 @@ public class AVL {
             node.left = helpInsert(node.left, key);
             if (height(node.left) - height(node.right) == 2)
                 if (key < node.left.key)
-                    node = rotateLeft(node);
+                    node = rotateRight(node);
                 else
                     node = doubleRotateLeft(node);
         } else {
@@ -257,38 +228,77 @@ public class AVL {
             node.right = helpInsert(node.right, key);
             if (height(node.right) - height(node.left) == 2)
                 if (key >= node.right.key)
-                    node = rotateRight(node);
+                    node = rotateLeft(node);
                 else
                     node = doubleRotateRight(node);
         }
-
-
+        if (root == null)
+            root = node;
         return node;
     }
 
-    private AVLNode rotateLeft(AVLNode k2) {
-        AVLNode k1 = k2.left;
-        k2.left = k1.right;
-        k1.right = k2;
+    private AVLNode insert(AVLNode node, int key) {
 
-        return k1;
+        if (node == null) {
+            noOfNodes++;
+            return (new AVLNode(key));
+        }
+
+        if (key < node.key)
+            node.left = insert(node.left, key);
+        else if (key > node.key)
+            node.right = insert(node.right, key);
+        else {
+            node.count++;
+            node.right = insert(node.right, key);
+        }
+
+        int balance = getBalance(node);
+
+        if (balance > 1 && key < node.left.key)
+            return rotateLeft(node);
+
+        if (balance < -1 && key > node.right.key)
+            return rotateRight(node);
+
+        if (balance > 1 && key > node.left.key) {
+            node.left = rotateRight(node.left);
+            return rotateLeft(node);
+        }
+
+        if (balance < -1 && key < node.right.key) {
+            node.right = rotateLeft(node.right);
+            return rotateRight(node);
+        }
+
+        return node;
+    }// Düzelt
+
+    private AVLNode doubleRotateLeft(AVLNode node) {
+        node.left = rotateLeft(node.left);
+        return rotateRight(node);
     }
 
-    private AVLNode rotateRight(AVLNode k1) {
-        AVLNode k2 = k1.right;
-        k1.right = k2.left;
-        k2.left = k1;
-
-        return k2;
+    private AVLNode doubleRotateRight(AVLNode node) {
+        node.right = rotateRight(node.right);
+        return rotateLeft(node);
     }
 
-    private AVLNode doubleRotateLeft(AVLNode k3) {
-        k3.left = rotateRight(k3.left);
-        return rotateLeft(k3);
+    private AVLNode rotateLeft(AVLNode node) {
+        AVLNode copy = node.right;
+        node.right = copy.left;
+        copy.left = node;
+        if (node == root)
+            root = copy;
+        return copy;
     }
 
-    private AVLNode doubleRotateRight(AVLNode k1) {
-        k1.right = rotateLeft(k1.right);
-        return rotateRight(k1);
+    private AVLNode rotateRight(AVLNode node) {
+        AVLNode copy = node.left;
+        node.left = copy.right;
+        copy.right = node;
+        if (node == root)
+            root = copy;
+        return copy;
     }
 }
