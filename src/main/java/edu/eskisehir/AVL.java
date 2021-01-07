@@ -119,13 +119,12 @@ public class AVL {
      *******************************************************/
     public void Print() {
         inOrder(root);
-        System.out.println();
     } //end-Print
 
     private void inOrder(AVLNode node) {
         if (node != null) {
             inOrder(node.left);
-            System.out.print(node.key + " ");
+            System.out.println("Node: "+node.key + " counter: " + node.count);
             inOrder(node.right);
         }
     }
@@ -236,43 +235,6 @@ public class AVL {
             root = node;
         return node;
     }
-
-    private AVLNode insert(AVLNode node, int key) {
-
-        if (node == null) {
-            noOfNodes++;
-            return (new AVLNode(key));
-        }
-
-        if (key < node.key)
-            node.left = insert(node.left, key);
-        else if (key > node.key)
-            node.right = insert(node.right, key);
-        else {
-            node.count++;
-            node.right = insert(node.right, key);
-        }
-
-        int balance = getBalance(node);
-
-        if (balance > 1 && key < node.left.key)
-            return rotateLeft(node);
-
-        if (balance < -1 && key > node.right.key)
-            return rotateRight(node);
-
-        if (balance > 1 && key > node.left.key) {
-            node.left = rotateRight(node.left);
-            return rotateLeft(node);
-        }
-
-        if (balance < -1 && key < node.right.key) {
-            node.right = rotateLeft(node.right);
-            return rotateRight(node);
-        }
-
-        return node;
-    }// Düzelt
 
     private AVLNode doubleRotateLeft(AVLNode node) {
         node.left = rotateLeft(node.left);
